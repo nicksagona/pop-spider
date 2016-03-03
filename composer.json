@@ -1,0 +1,42 @@
+{
+  "name": "nicksagona/pop-spider",
+  "description": "A simple web spider for SEO analysis.",
+  "keywords": [
+    "seo",
+    "web spider",
+    "spider"
+  ],
+  "homepage": "https://github.com/nicksagona/pop-spider",
+  "license": "New BSD",
+  "authors": [
+    {
+      "name": "Nick Sagona",
+      "email": "dev@nolainteractive.com",
+      "homepage": "http://www.nolainteractive.com/"
+    }
+  ],
+  "require": {
+    "php": ">=5.4.0",
+    "popphp/popphp": "2.0.*",
+    "popphp/pop-http": "2.0.*",
+    "popphp/pop-view": "2.0.*"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "4.6.*"
+  },
+  "autoload": {
+    "psr-4": {
+      "PopSpider\\": "app/src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "PopSpider\\Test\\": "tests/"
+    }
+  },
+  "extra": {
+    "branch-alias": {
+      "dev-master": "2.0.x-dev"
+    }
+  }
+}
