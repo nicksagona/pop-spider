@@ -42,7 +42,7 @@ class ConsoleController extends \Pop\Controller\AbstractController
         $crawler = new Crawler($url, $dir, $tags);
         $crawler->run();
 
-        $this->console->send();
+        //$this->console->send();
     }
 
     public function error()

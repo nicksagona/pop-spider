@@ -2,6 +2,8 @@
 
 namespace PopSpider\Model;
 
+use Pop\Http\Response;
+
 class Crawler
 {
 
@@ -59,7 +61,18 @@ class Crawler
 
     public function run()
     {
+        $ua = (isset($_SERVER['HTTP_USER_AGENT'])) ?
+            $_SERVER['HTTP_USER_AGENT'] :
+            'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:16.0) Gecko/20100101 Firefox/16.0';
 
+        $context = [
+            'method'     => 'GET',
+            'header'     => "Accept-language: en\r\n" . "User-Agent: " . $ua . "\r\n",
+            'user_agent' => $ua
+        ];
+
+        $response = Response::parse($this->url, $context);
+        print_r($response);
     }
 
 }
