@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<!-- Header //-->
+<html>
+
+<head>
+
+    <title>pop-spider results: <?=$base; ?></title>
+
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="css/styles.css" />
+    <script type="text/javascript" src="js/scripts.js"></script>
+
+</head>
+
+<body>
+    <header>
+        <h3>pop-spider results</h3>
+    </header>
+    <nav>
+        <a href="#urls">URLs</a>
+        <a href="#redirects">Redirects</a>
+        <a href="#errors">Errors</a>
+    </nav>
+<!-- Content //-->
+<div id="content">
+    <h4 class="right" style="margin: 15px 0 0 0;"><?=date('M j, Y g:i A'); ?></h4>
+    <h1 class="url-header"><?=$base; ?></h1>
+    <h2><a name="urls"></a><?=count($urls['200']); ?> URLs</h2>
+<?php if (count($urls['200']) > 0): ?>
+    <table class="data-table" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+            <th>URL</th>
+            <th>Title</th>
+        </tr>
+<?php foreach ($urls['200'] as $url => $value): ?>
+        <tr>
+            <td style="padding: 8px;"><a href="#" onclick="displayResults('<?=md5($url); ?>'); return false;"><?=$url;?></a></td>
+            <td style="padding: 8px;"><?=trim($value['title']);?></td>
+        </tr>
+        <tr id="<?=md5($url); ?>" style="display: none;">
+            <td colspan="2">
+<?php
+if (isset($value['meta']) && (count($value['meta']) > 0)):
+    include __DIR__ . '/inc/meta.phtml';
+endif;
+if (isset($value['a']) && (count($value['a']) > 0)):
+    include __DIR__ . '/inc/a.phtml';
+endif;
+if (isset($value['img']) && (count($value['img']) > 0)):
+    include __DIR__ . '/inc/img.phtml';
+endif;
+?>
+<?php foreach ($value as $k => $v):
+    if (($k !== 'title') && ($k !== 'meta') && ($k !== 'img') && ($k !== 'a') && (count($v) > 0)):
+        include __DIR__ . '/inc/default.phtml';
+    endif;
+endforeach; ?>
+            </td>
+        </tr>
+<?php endforeach; ?>
+    </table>
+<?php else: ?>
+    <p>There are no URLs.</p>
+<?php endif; ?>
+    <h2><a name="redirects"></a><?=count($urls['30*']); ?> Redirects</h2>
+<?php if (count($urls['30*']) > 0): ?>
+    <table class="data-table" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+            <th>URL</th>
+            <th>Code/Message</th>
+        </tr>
+<?php foreach ($urls['30*'] as $url => $code): ?>
+        <tr>
+            <td style="padding: 8px;"><?=$url; ?></td>
+            <td style="padding: 8px;"><?=$code; ?></td>
+        </tr>
+<?php endforeach; ?>
+    </table>
+<?php else: ?>
+    <p>There are no redirects.</p>
+<?php endif; ?>
+    <h2><a name="errors"></a><?=count($urls['404']); ?> Errors</h2>
+<?php if (count($urls['404']) > 0): ?>
+    <table class="data-table" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+            <th>URL</th>
+            <th>Parent</th>
+        </tr>
+<?php foreach ($urls['404'] as $url => $parent): ?>
+        <tr>
+            <td style="padding: 8px;"><?=$url; ?></td>
+            <td style="padding: 8px;"><?=$parent; ?></td>
+        </tr>
+<?php endforeach; ?>
+    </table>
+<?php else: ?>
+    <p>There are no errors.</p>
+<?php endif; ?>
+</div>
+<!-- Footer //-->
+</body>
+
+</html>

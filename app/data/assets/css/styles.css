@@ -1,0 +1,186 @@
+/**
+ * Styles for pop-spider
+ */
+
+@import url('//fonts.googleapis.com/css?family=Source+Sans+Pro:400,400italic,700,700italic');
+
+html {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: "Source Sans Pro", arial, sans-serif;
+    font-size: 0.9em;
+    color: #333;
+}
+
+img {
+    border: none;
+}
+
+a {
+    text-decoration: none;
+    color: #014e9b;
+}
+
+a:hover {
+    text-decoration: underline;
+    color: #2e4c5e;
+}
+
+h1 {
+    margin: 0 0 20px 0;
+    padding: 0;
+    font-size: 3.0em;
+    font-weight: normal;
+}
+
+h2 {
+    margin: 10px 0 15px 0;
+    padding: 10px 0 0 0;
+    font-size: 2.4em;
+    font-weight: normal;
+    border-top: solid 1px #ccc;
+}
+
+h3 {
+    margin: 0 0 8px 0;
+    padding: 0;
+    font-size: 1.6em;
+}
+
+h4 {
+    margin: 0 0 5px 0;
+    padding: 0;
+    font-size: 1.2em;
+}
+
+p {
+    margin: 0 0 15px 0;
+    padding: 0;
+    line-height: 1.5em;
+}
+
+header {
+    margin: 0 auto;
+    padding: 0;
+    width: 100%;
+    height: 40px;
+    background-color: #eee;
+    text-align: center;
+}
+
+header > h3 {
+    margin: 0;
+    padding: 10px;
+    font-size: 1.0em;
+    font-weight: normal;
+    color: #aaa;
+}
+
+nav {
+    margin: 0 auto;
+    padding: 0;
+    width: 100%;
+    background-color: #eee;
+    text-align: right;
+}
+
+nav > a {
+    margin: 0 0 0 10px;
+    padding: 8px 15px 8px 15px;
+    display: inline-block;
+    font-size: 0.825em;
+    background-color: #ddd;
+}
+
+nav > a:hover {
+    background-color: #fff;
+}
+
+#content {
+    margin: 0 auto;
+    padding: 0;
+    width: 95%;
+}
+
+.right {
+    float: right;
+}
+
+.url-header {
+    color: #09a1ed;
+}
+
+.data-table {
+    margin: 0 auto 25px auto;
+    padding: 0;
+    width: 100%;
+}
+
+.data-table tr {
+    margin: 0;
+    padding: 0;
+}
+
+.data-table th {
+    margin: 0;
+    padding: 8px;
+    color: #fff;
+    font-size: 1.2em;
+    background-color: #404040;
+    border-right: solid 1px #fff;
+}
+
+.data-table td {
+    margin: 0;
+    padding: 0;
+    vertical-align: top;
+    font-size: 0.9em;
+    background-color: #dedede;
+    border-top: solid 1px #fff;
+    border-right: solid 1px #fff;
+}
+
+.data-table th:last-child, .data-table td:last-child {
+    border-right: none;
+}
+
+table.data-table > tr.url-first > td.url-first {
+    background-color: #f00;
+}
+
+.sub-data-table {
+    margin: 0 auto 0 auto;
+    padding: 0;
+    width: 100%;
+}
+
+.sub-data-table tr {
+    margin: 0;
+    padding: 0;
+}
+
+.sub-data-table th {
+    margin: 0;
+    padding: 5px;
+    color: #fff;
+    font-size: 0.825em;
+    text-align: left;
+    background-color: #666;
+    border-right: solid 1px #fff;
+}
+
+.sub-data-table td {
+    margin: 0;
+    padding: 2px 5px 2px 5px;
+    font-size: 0.825em;
+    vertical-align: top;
+    color: #000;
+    background-color: #bcbcbc;
+    border-top: solid 1px #fff;
+    border-right: solid 1px #fff;
+}
