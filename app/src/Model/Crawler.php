@@ -8,6 +8,9 @@ use Pop\Http\Response;
 class Crawler
 {
 
+    /**
+     * @var Console
+     */
     protected $console = null;
     protected $baseUrl = null;
     protected $dir     = null;
@@ -86,21 +89,9 @@ class Crawler
         return count($this->crawled['200']) + count($this->crawled['30*']) + count($this->crawled['404']);
     }
 
-    public function run(Console $console)
+    public function prepare(Console $console)
     {
         $this->console = $console;
-
-        $ua = (isset($_SERVER['HTTP_USER_AGENT'])) ?
-            $_SERVER['HTTP_USER_AGENT'] :
-            'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:16.0) Gecko/20100101 Firefox/16.0';
-
-        $context = [
-            'method'     => 'GET',
-            'header'     => "Accept-language: en\r\n" . "User-Agent: " . $ua . "\r\n",
-            'user_agent' => $ua
-        ];
-
-        $this->crawl($this->baseUrl, $context);
     }
 
     /**
@@ -109,9 +100,9 @@ class Crawler
      * @param  string $currentUrl
      * @param  array  $context
      * @param  string $parent
-     * @return void
+     * @return array
      */
-    protected function crawl($currentUrl, $context, $parent = null)
+    public function crawl($currentUrl, $context, $parent = null)
     {
         $response    = Response::parse($currentUrl, $context);
         $contentType = null;

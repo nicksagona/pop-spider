@@ -50,9 +50,21 @@ class ConsoleController extends \Pop\Controller\AbstractController
         $dir  = (null !== $dir) ? $dir : 'output';
         $tags = (null !== $tags) ? explode(',', $tags) : [];
 
+        $ua = (isset($_SERVER['HTTP_USER_AGENT'])) ?
+            $_SERVER['HTTP_USER_AGENT'] :
+            'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:16.0) Gecko/20100101 Firefox/16.0';
+
+        $context = [
+            'method'     => 'GET',
+            'header'     => "Accept-language: en\r\n" . "User-Agent: " . $ua . "\r\n",
+            'user_agent' => $ua
+        ];
+
         $start = time();
         $this->crawler = new Crawler($url, $dir, $tags);
-        $this->crawler->run($this->console);
+        $this->crawler->prepare($this->console);
+        $this->crawler->crawl($this->crawler->getBaseUrl(), $context);
+
         $this->output();
 
         $crawled = $this->crawler->getCrawled();
