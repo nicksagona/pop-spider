@@ -15,7 +15,7 @@ class Crawler
     protected $crawled  = [
         '200' => [],
         '30*' => [],
-        '404' => []
+        '40*' => []
     ];
 
     public function __construct(UrlQueue $urlQueue, array $tags = [])
@@ -70,7 +70,7 @@ class Crawler
 
     public function getTotal()
     {
-        return count($this->crawled['200']) + count($this->crawled['30*']) + count($this->crawled['404']);
+        return count($this->crawled['200']) + count($this->crawled['30*']) + count($this->crawled['40*']);
     }
 
     public function crawl()
@@ -101,17 +101,27 @@ class Crawler
                 $this->crawled['200'][$currentUrl] = $this->parseElements($dom, $currentUrl);
                 if (isset($this->crawled['200'][$currentUrl]['a']) && (count($this->crawled['200'][$currentUrl]['a']) > 0)) {
                     foreach ($this->crawled['200'][$currentUrl]['a'] as $a) {
-                        if ((substr($a['href'], 0, strlen($this->getBaseUrl())) == $this->getBaseUrl()) &&
-                            !array_key_exists($a['href'], $this->crawled['200']) && (!$this->urlQueue->hasUrl($a['href']))) {
+                        if (substr($a['href'], 0, strlen($this->getBaseUrl())) == $this->getBaseUrl() && (!$this->urlQueue->hasUrl($a['href']))) {
                             $this->urlQueue->addUrl($a['href'], $currentUrl);
                             $newUrls++;
                         }
                     }
                 }
-            } else if (($response->isRedirect()) && !array_key_exists($currentUrl, $this->crawled['30*'])) {
-                $this->crawled['30*'][$currentUrl] = $response->getCode() . ' ' . $response->getMessage();
-            } else if (($response->getCode() == 404) && !array_key_exists($currentUrl, $this->crawled['404'])) {
-                $this->crawled['404'][$currentUrl] = $this->urlQueue->getParent($currentUrl);
+            } else if ($response->isRedirect()) {
+                $this->crawled['30*'][] = [
+                    'url'      => $currentUrl,
+                    'parent'   => $this->urlQueue->getParent($currentUrl),
+                    'code'     => $response->getCode(),
+                    'message'  => $response->getMessage(),
+                    'location' => $response->getHeader('Location')
+                ];
+            } else if ($response->isClientError()) {
+                $this->crawled['40*'][] = [
+                    'url'     => $currentUrl,
+                    'parent'  => $this->urlQueue->getParent($currentUrl),
+                    'code'    => $response->getCode(),
+                    'message' => $response->getMessage()
+                ];
             }
         }
 

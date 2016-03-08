@@ -5,10 +5,10 @@ namespace PopSpider\Model;
 class UrlQueue
 {
 
-    protected $baseUrl = null;
-    protected $urls    = [];
-    protected $parents = [];
-    protected $index   = -1;
+    protected $baseUrl   = null;
+    protected $urls      = [];
+    protected $parents   = [];
+    protected $index     = -1;
 
     public function __construct($url = null)
     {

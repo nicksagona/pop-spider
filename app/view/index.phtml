@@ -67,29 +67,35 @@ endforeach; ?>
     <table class="data-table" cellpadding="0" cellspacing="0" border="0">
         <tr>
             <th>URL</th>
-            <th>Code/Message</th>
+            <th>Code</th>
+            <th>Location</th>
+            <th>Parent</th>
         </tr>
-<?php foreach ($urls['30*'] as $url => $code): ?>
+<?php foreach ($urls['30*'] as $url): ?>
         <tr>
-            <td style="padding: 8px;"><?=$url; ?></td>
-            <td style="padding: 8px;"><?=$code; ?></td>
+            <td style="padding: 8px;"><?=$url['url']; ?></td>
+            <td style="padding: 8px;"><?=$url['code'] . ' ' . $url['message']; ?></td>
+            <td style="padding: 8px;"><?=$url['location']; ?></td>
+            <td style="padding: 8px;"><?=$url['parent']; ?></td>
         </tr>
 <?php endforeach; ?>
     </table>
 <?php else: ?>
     <p>There are no redirects.</p>
 <?php endif; ?>
-    <h2><a name="errors"></a><?=count($urls['404']); ?> Errors</h2>
-<?php if (count($urls['404']) > 0): ?>
+    <h2><a name="errors"></a><?=count($urls['40*']); ?> Errors</h2>
+<?php if (count($urls['40*']) > 0): ?>
     <table class="data-table" cellpadding="0" cellspacing="0" border="0">
         <tr>
             <th>URL</th>
+            <th>Code</th>
             <th>Parent</th>
         </tr>
-<?php foreach ($urls['404'] as $url => $parent): ?>
+<?php foreach ($urls['40*'] as $url): ?>
         <tr>
-            <td style="padding: 8px;"><?=$url; ?></td>
-            <td style="padding: 8px;"><?=$parent; ?></td>
+            <td style="padding: 8px;"><?=$url['url']; ?></td>
+            <td style="padding: 8px;"><?=$url['code'] . ' ' . $url['message']; ?></td>
+            <td style="padding: 8px;"><?=$url['parent']; ?></td>
         </tr>
 <?php endforeach; ?>
     </table>

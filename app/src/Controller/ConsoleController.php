@@ -57,19 +57,21 @@ class ConsoleController extends \Pop\Controller\AbstractController
 
         while ($nextUrl = $urlQueue->nextUrl()) {
             $result = $this->crawler->crawl();
+
             if ((null !== $result['content-type']) && (stripos($result['content-type'], 'text/html') !== false)) {
                 $this->console->write($nextUrl, false);
                 $this->console->send();
-                if ($result['code'] == 200) {
-                    $this->console->write($this->console->colorize('200 OK', Console::BOLD_GREEN));
-                    $this->console->send();
+
+                if (floor($result['code'] / 100) == 4) {
+                    $color = Console::BOLD_RED;
                 } else if (floor($result['code'] / 100) == 3) {
-                    $this->console->write($this->console->colorize($result['code'] . ' ' . $result['message'], Console::BOLD_CYAN));
-                    $this->console->send();
-                } else if ($result['code'] == 404) {
-                    $this->console->write($this->console->colorize('404 NOT FOUND', Console::BOLD_RED));
-                    $this->console->send();
+                    $color = Console::BOLD_CYAN;
+                } else {
+                    $color = Console::BOLD_GREEN;
                 }
+
+                $this->console->write($this->console->colorize($result['code'] . ' ' . $result['message'], $color));
+                $this->console->send();
             }
         }
 
@@ -82,7 +84,7 @@ class ConsoleController extends \Pop\Controller\AbstractController
         $this->console->write();
         $this->console->write($this->console->colorize(count($crawled['200']) . ' OK', Console::BOLD_GREEN));
         $this->console->write($this->console->colorize(count($crawled['30*']) . ' Redirects', Console::BOLD_CYAN));
-        $this->console->write($this->console->colorize(count($crawled['404']) . ' Errors', Console::BOLD_RED));
+        $this->console->write($this->console->colorize(count($crawled['40*']) . ' Errors', Console::BOLD_RED));
         $this->console->send();
     }
 
