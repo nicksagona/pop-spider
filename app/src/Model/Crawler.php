@@ -2,55 +2,44 @@
 
 namespace PopSpider\Model;
 
-use Pop\Console\Console;
 use Pop\Http\Response;
 
 class Crawler
 {
-
     /**
-     * @var Console
+     * @var UrlQueue
      */
-    protected $console = null;
-    protected $baseUrl = null;
-    protected $dir     = null;
-    protected $depth   = 0;
-    protected $tags    = ['title', 'meta', 'a', 'img', 'h1', 'h2', 'h3'];
-    protected $crawled = [
+    protected $urlQueue = null;
+    protected $context  = [];
+    protected $tags     = ['title', 'meta', 'a', 'img', 'h1', 'h2', 'h3'];
+    protected $crawled  = [
         '200' => [],
         '30*' => [],
         '404' => []
     ];
 
-    public function __construct($url, $dir = 'output', array $tags = [])
+    public function __construct(UrlQueue $urlQueue, array $tags = [])
     {
-        $this->setBaseUrl($url);
-        $this->setDir($dir);
+        $this->setUrlQueue($urlQueue);
+
         if (count($tags) > 0) {
             $this->setTags(array_merge($this->tags, $tags));
         }
+
+        $ua = (isset($_SERVER['HTTP_USER_AGENT'])) ?
+            $_SERVER['HTTP_USER_AGENT'] :
+            'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:16.0) Gecko/20100101 Firefox/16.0';
+
+        $this->context = [
+            'method'     => 'GET',
+            'header'     => "Accept-language: en\r\n" . "User-Agent: " . $ua . "\r\n",
+            'user_agent' => $ua
+        ];
     }
 
-    public function setBaseUrl($url)
+    public function setUrlQueue(UrlQueue $urlQueue)
     {
-        $url = str_replace(
-            ['%3A', '%2F', '%23', '%3F', '%3D', '%25', '%2B'],
-            [':', '/', '#', '?', '=', '%', '+'],
-            rawurlencode($url)
-        );
-
-        if (substr($url, -1) == '/') {
-            $url = substr($url, 0, -1);
-        }
-
-        $this->baseUrl = $url;
-        return $this;
-    }
-
-    public function setDir($dir)
-    {
-        $this->dir = $dir;
-        return $this;
+        $this->urlQueue = $urlQueue;
     }
 
     public function setTags(array $tags)
@@ -59,14 +48,14 @@ class Crawler
         return $this;
     }
 
-    public function getBaseUrl()
+    public function getUrlQueue()
     {
-        return $this->baseUrl;
+        return $this->urlQueue;
     }
 
-    public function getDir()
+    public function getBaseUrl()
     {
-        return $this->dir;
+        return $this->urlQueue->getBaseUrl();
     }
 
     public function getTags()
@@ -79,33 +68,17 @@ class Crawler
         return $this->crawled;
     }
 
-    public function getDepth()
-    {
-        return $this->depth;
-    }
-
     public function getTotal()
     {
         return count($this->crawled['200']) + count($this->crawled['30*']) + count($this->crawled['404']);
     }
 
-    public function prepare(Console $console)
+    public function crawl()
     {
-        $this->console = $console;
-    }
-
-    /**
-     * Crawl the base URL
-     *
-     * @param  string $currentUrl
-     * @param  array  $context
-     * @param  string $parent
-     * @return array
-     */
-    public function crawl($currentUrl, $context, $parent = null)
-    {
-        $response    = Response::parse($currentUrl, $context);
+        $currentUrl  = $this->urlQueue->currentUrl();
+        $response    = Response::parse($currentUrl, $this->context);
         $contentType = null;
+        $newUrls     = 0;
 
         if (null !== $response->getHeader('Content-type')) {
             $contentType = $response->getHeader('Content-type');
@@ -114,8 +87,6 @@ class Crawler
         }
 
         if ((null !== $contentType) && (stripos($contentType, 'text/html') !== false)) {
-            $this->console->write($currentUrl, false);
-            $this->console->send();
             if (($response->getCode() == 200) && !array_key_exists($currentUrl, $this->crawled['200'])) {
                 $oldError = ini_get('error_reporting');
                 error_reporting(0);
@@ -127,31 +98,29 @@ class Crawler
 
                 error_reporting($oldError);
 
-                if ((substr_count($currentUrl, '/') - 2) > $this->depth) {
-                    $this->depth = (substr_count($currentUrl, '/') - 2);
-                }
-
                 $this->crawled['200'][$currentUrl] = $this->parseElements($dom, $currentUrl);
-                $this->console->write($this->console->colorize('200 OK', Console::BOLD_GREEN));
-                $this->console->send();
                 if (isset($this->crawled['200'][$currentUrl]['a']) && (count($this->crawled['200'][$currentUrl]['a']) > 0)) {
                     foreach ($this->crawled['200'][$currentUrl]['a'] as $a) {
-                        if ((substr($a['href'], 0, strlen($this->baseUrl)) == $this->baseUrl) &&
-                            !array_key_exists($a['href'], $this->crawled['200'])) {
-                            $this->crawl($a['href'], $context, $currentUrl);
+                        if ((substr($a['href'], 0, strlen($this->getBaseUrl())) == $this->getBaseUrl()) &&
+                            !array_key_exists($a['href'], $this->crawled['200']) && (!$this->urlQueue->hasUrl($a['href']))) {
+                            $this->urlQueue->addUrl($a['href'], $currentUrl);
+                            $newUrls++;
                         }
                     }
                 }
             } else if (($response->isRedirect()) && !array_key_exists($currentUrl, $this->crawled['30*'])) {
                 $this->crawled['30*'][$currentUrl] = $response->getCode() . ' ' . $response->getMessage();
-                $this->console->write($this->console->colorize($response->getCode() . ' ' . $response->getMessage(), Console::BOLD_CYAN));
-                $this->console->send();
             } else if (($response->getCode() == 404) && !array_key_exists($currentUrl, $this->crawled['404'])) {
-                $this->crawled['404'][$currentUrl] = $parent;
-                $this->console->write($this->console->colorize('404 NOT FOUND', Console::BOLD_RED));
-                $this->console->send();
+                $this->crawled['404'][$currentUrl] = $this->urlQueue->getParent($currentUrl);
             }
         }
+
+        return [
+            'content-type' => $contentType,
+            'code'         => $response->getCode(),
+            'message'      => $response->getMessage(),
+            'newUrls'      => $newUrls
+        ];
     }
 
     /**
@@ -204,15 +173,15 @@ class Crawler
                             $href = ($a->hasAttribute('href') ? $a->getAttribute('href') : null);
 
                             if ((null !== $href) && ($this->isValidHref($href))) {
-                                if (substr($href, 0, strlen($this->baseUrl)) == $this->baseUrl) {
-                                    $href = substr($href, strlen($this->baseUrl));
+                                if (substr($href, 0, strlen($this->getBaseUrl())) == $this->getBaseUrl()) {
+                                    $href = substr($href, strlen($this->getBaseUrl()));
                                 }
-                                $url = substr($currentUrl, strlen($this->baseUrl));
+                                $url = substr($currentUrl, strlen($this->getBaseUrl()));
 
                                 if (substr($href, 0, 1) == '/') {
-                                    $href = $this->baseUrl . $href;
+                                    $href = $this->getBaseUrl() . $href;
                                 } else if (substr($href, 0, 2) == './') {
-                                    $href = $this->baseUrl . $url . substr($href, 1);
+                                    $href = $this->getBaseUrl() . $url . substr($href, 1);
                                 } else if (strpos($href, '../') !== false) {
                                     $depth  = substr_count($url, '/');
                                     $levels = substr_count($href, '../');
@@ -220,9 +189,9 @@ class Crawler
                                         for ($i = 0; $i < $levels; $i++) {
                                             $url = substr($url, 0, strrpos($url, '/'));
                                         }
-                                        $href = $this->baseUrl . $url . '/' . str_replace('../', '', $href);
+                                        $href = $this->getBaseUrl() . $url . '/' . str_replace('../', '', $href);
                                     } else {
-                                        $href = $this->baseUrl . '/' . str_replace('../', '', $href);
+                                        $href = $this->getBaseUrl() . '/' . str_replace('../', '', $href);
                                     }
                                 }
                             }

@@ -6,6 +6,7 @@ use Pop\Console\Console;
 use Pop\Console\Input\Command;
 use Pop\View\View;
 use PopSpider\Model\Crawler;
+use PopSpider\Model\UrlQueue;
 
 class ConsoleController extends \Pop\Controller\AbstractController
 {
@@ -47,32 +48,39 @@ class ConsoleController extends \Pop\Controller\AbstractController
         $this->console->write('Crawling: ' . $url);
         $this->console->write();
 
-        $dir  = (null !== $dir) ? $dir : 'output';
-        $tags = (null !== $tags) ? explode(',', $tags) : [];
-
-        $ua = (isset($_SERVER['HTTP_USER_AGENT'])) ?
-            $_SERVER['HTTP_USER_AGENT'] :
-            'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:16.0) Gecko/20100101 Firefox/16.0';
-
-        $context = [
-            'method'     => 'GET',
-            'header'     => "Accept-language: en\r\n" . "User-Agent: " . $ua . "\r\n",
-            'user_agent' => $ua
-        ];
-
+        $dir   = (null !== $dir) ? $dir : 'output';
+        $tags  = (null !== $tags) ? explode(',', $tags) : [];
         $start = time();
-        $this->crawler = new Crawler($url, $dir, $tags);
-        $this->crawler->prepare($this->console);
-        $this->crawler->crawl($this->crawler->getBaseUrl(), $context);
 
-        $this->output();
+        $urlQueue      = new UrlQueue($url);
+        $this->crawler = new Crawler($urlQueue, $tags);
+
+        while ($nextUrl = $urlQueue->nextUrl()) {
+            $result = $this->crawler->crawl();
+            if ((null !== $result['content-type']) && (stripos($result['content-type'], 'text/html') !== false)) {
+                $this->console->write($nextUrl, false);
+                $this->console->send();
+                if ($result['code'] == 200) {
+                    $this->console->write($this->console->colorize('200 OK', Console::BOLD_GREEN));
+                    $this->console->send();
+                } else if (floor($result['code'] / 100) == 3) {
+                    $this->console->write($this->console->colorize($result['code'] . ' ' . $result['message'], Console::BOLD_CYAN));
+                    $this->console->send();
+                } else if ($result['code'] == 404) {
+                    $this->console->write($this->console->colorize('404 NOT FOUND', Console::BOLD_RED));
+                    $this->console->send();
+                }
+            }
+        }
+
+        $this->output($dir);
 
         $crawled = $this->crawler->getCrawled();
 
         $this->console->write();
         $this->console->write($this->crawler->getTotal() . ' URLs crawled in ' . (time() - $start) . ' seconds.');
         $this->console->write();
-        $this->console->write($this->console->colorize(count($crawled['200']) . ' URLs', Console::BOLD_GREEN));
+        $this->console->write($this->console->colorize(count($crawled['200']) . ' OK', Console::BOLD_GREEN));
         $this->console->write($this->console->colorize(count($crawled['30*']) . ' Redirects', Console::BOLD_CYAN));
         $this->console->write($this->console->colorize(count($crawled['404']) . ' Errors', Console::BOLD_RED));
         $this->console->send();
@@ -86,9 +94,8 @@ class ConsoleController extends \Pop\Controller\AbstractController
         $this->console->send();
     }
 
-    protected function output()
+    protected function output($dir)
     {
-        $dir = $this->crawler->getDir();
         if (!file_exists($dir)) {
             mkdir($dir);
         }
@@ -104,8 +111,7 @@ class ConsoleController extends \Pop\Controller\AbstractController
 
         $data = [
             'base'  => $this->crawler->getBaseUrl(),
-            'urls'  => $this->crawler->getCrawled(),
-            'depth' => $this->crawler->getDepth()
+            'urls'  => $this->crawler->getCrawled()
         ];
 
         $index   = new View(__DIR__ . '/../../view/index.phtml', $data);
