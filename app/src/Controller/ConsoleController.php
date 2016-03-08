@@ -51,41 +51,6 @@ class ConsoleController extends \Pop\Controller\AbstractController
         $dir   = (null !== $dir) ? $dir : 'output';
         $tags  = (null !== $tags) ? explode(',', $tags) : [];
         $start = time();
-
-        $urlQueue      = new UrlQueue($url);
-        $this->crawler = new Crawler($urlQueue, $tags);
-
-        while ($nextUrl = $urlQueue->nextUrl()) {
-            $result = $this->crawler->crawl();
-
-            if ((null !== $result['content-type']) && (stripos($result['content-type'], 'text/html') !== false)) {
-                $this->console->write($nextUrl, false);
-                $this->console->send();
-
-                if (floor($result['code'] / 100) == 4) {
-                    $color = Console::BOLD_RED;
-                } else if (floor($result['code'] / 100) == 3) {
-                    $color = Console::BOLD_CYAN;
-                } else {
-                    $color = Console::BOLD_GREEN;
-                }
-
-                $this->console->write($this->console->colorize($result['code'] . ' ' . $result['message'], $color));
-                $this->console->send();
-            }
-        }
-
-        $this->output($dir);
-
-        $crawled = $this->crawler->getCrawled();
-
-        $this->console->write();
-        $this->console->write($this->crawler->getTotal() . ' URLs crawled in ' . (time() - $start) . ' seconds.');
-        $this->console->write();
-        $this->console->write($this->console->colorize(count($crawled['200']) . ' OK', Console::BOLD_GREEN));
-        $this->console->write($this->console->colorize(count($crawled['30*']) . ' Redirects', Console::BOLD_CYAN));
-        $this->console->write($this->console->colorize(count($crawled['40*']) . ' Errors', Console::BOLD_RED));
-        $this->console->send();
     }
 
     public function error()
@@ -112,8 +77,8 @@ class ConsoleController extends \Pop\Controller\AbstractController
         copy(__DIR__ . '/../../data/assets/js/scripts.js', $dir . '/js/scripts.js');
 
         $data = [
-            'base'  => $this->crawler->getBaseUrl(),
-            'urls'  => $this->crawler->getCrawled()
+            'base'  => '', //$this->crawler->getBaseUrl(),
+            'urls'  => []  //$this->crawler->getCrawled()
         ];
 
         $index   = new View(__DIR__ . '/../../view/index.phtml', $data);

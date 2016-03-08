@@ -2,70 +2,76 @@
 
 namespace PopSpider\Model;
 
-class UrlQueue
+class UrlQueue implements \Iterator, \ArrayAccess
 {
 
-    protected $baseUrl   = null;
-    protected $urls      = [];
-    protected $parents   = [];
-    protected $index     = -1;
+    protected $position = 0;
+    protected $array    = [];
 
-    public function __construct($url = null)
-    {
-        if (null !== $url) {
-            $this->addUrl($url);
+    public function __construct() {
+        $this->position = 0;
+    }
+
+    function rewind() {
+        $this->position = 0;
+    }
+
+    function current() {
+        return $this->array[$this->position];
+    }
+
+    function key() {
+        return $this->position;
+    }
+
+    function prev() {
+        --$this->position;
+        return $this->current();
+    }
+
+    function next() {
+        ++$this->position;
+        return $this->current();
+    }
+
+    function valid() {
+        return isset($this->array[$this->position]);
+    }
+
+    public function offsetSet($offset, $value) {
+        if (null === $offset) {
+            $this->array[] = $value;
+        } else {
+            $this->array[$offset] = $value;
         }
     }
 
-    public function addUrl($url, $parent = null)
-    {
-        $url = str_replace(
-            ['%3A', '%2F', '%23', '%3F', '%3D', '%25', '%2B'],
-            [':', '/', '#', '?', '=', '%', '+'],
-            rawurlencode($url)
-        );
-
-        if (count($this->urls) == 0) {
-            $this->baseUrl = $url;
-            if (substr($this->baseUrl, -1) == '/') {
-                $this->baseUrl = substr($this->baseUrl, 0, -1);
-            }
-        }
-
-        if (null !== $parent) {
-            $this->parents[$url] = $parent;
-        }
-
-        $this->urls[] = $url;
+    public function offsetExists($offset) {
+        return isset($this->array[$offset]);
     }
 
-    public function getBaseUrl()
-    {
-        return $this->baseUrl;
+    public function offsetUnset($offset) {
+        unset($this->array[$offset]);
     }
 
-    public function getParent($url)
-    {
-        return (isset($this->parents[$url])) ?
-            $this->parents[$url] : null;
+    public function offsetGet($offset) {
+        return isset($this->array[$offset]) ? $this->array[$offset] : null;
     }
 
-    public function currentUrl()
-    {
-        return (isset($this->urls[$this->index])) ?
-            $this->urls[$this->index] : null;
+    public function __set($name, $value) {
+        $this->offsetSet($name, $value);
     }
 
-    public function nextUrl()
-    {
-        $this->index++;
-        return (isset($this->urls[$this->index])) ?
-            $this->urls[$this->index] : false;
+    public function __get($name) {
+        return $this->offsetGet($name);
     }
 
-    public function hasUrl($url)
-    {
-        return (in_array($url, $this->urls));
+    public function __unset($name) {
+        $this->offsetUnset($name);
+    }
+
+    public function __isset($name) {
+        return $this->offsetExists($name);
     }
 
 }
