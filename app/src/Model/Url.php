@@ -10,12 +10,20 @@ class Url
     /**
      * @var Response
      */
-    protected $response = null;
-    protected $url      = '';
-    protected $elements = [];
+    protected $response    = null;
+    protected $contentType = null;
+    protected $url         = '';
+    protected $elements    = [];
+    protected $children    = [];
 
     public function __construct($url)
     {
+        $url = str_replace(
+            ['%3A', '%2F', '%23', '%3F', '%3D', '%25', '%2B'],
+            [':', '/', '#', '?', '=', '%', '+'],
+            rawurlencode($url)
+        );
+
         $this->url = $url;
     }
 
@@ -32,6 +40,11 @@ class Url
     public function getMessage()
     {
         return (null !== $this->response) ? $this->response->getMessage() : null;
+    }
+
+    public function getContentType()
+    {
+        return $this->contentType;
     }
 
     public function isSuccess()
@@ -56,12 +69,12 @@ class Url
         $this->response = Response::parse($this->url, $context);
 
         if (null !== $this->response->getHeader('Content-type')) {
-            $contentType = $this->response->getHeader('Content-type');
+            $this->contentType = $this->response->getHeader('Content-type');
         } else if (null !== $this->response->getHeader('Content-Type')) {
-            $contentType = $this->response->getHeader('Content-Type');
+            $this->contentType = $this->response->getHeader('Content-Type');
         }
 
-        if ((null !== $contentType) && (stripos($contentType, 'text/html') !== false)) {
+        if ((null !== $this->contentType) && (stripos($this->contentType, 'text/html') !== false)) {
             if ($this->response->getCode() == 200) {
                 $oldError = ini_get('error_reporting');
                 error_reporting(0);
@@ -82,7 +95,7 @@ class Url
                         $title = $dom->getElementsByTagName('title');
 
                         $this->elements['title'] = (null !== $title->item(0)) ?
-                            $title->item(0)->nodeValue : null;
+                            trim($title->item(0)->nodeValue) : null;
                         break;
 
                     case 'meta':
@@ -135,6 +148,11 @@ class Url
                                         } else {
                                             $href = $baseUrl . '/' . str_replace('../', '', $href);
                                         }
+                                    }
+
+                                    if ((substr($href, 0, strlen($baseUrl)) == $baseUrl) &&
+                                        !in_array($href, $this->children) && ($this->url != $href)) {
+                                        $this->children[] = $href;
                                     }
                                 }
 
@@ -191,6 +209,16 @@ class Url
     public function getElements()
     {
         return $this->elements;
+    }
+
+    public function hasChildren()
+    {
+        return (count($this->children) > 0);
+    }
+
+    public function getChildren()
+    {
+        return $this->children;
     }
 
     public function isParsed()

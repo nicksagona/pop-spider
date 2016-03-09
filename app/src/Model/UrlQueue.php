@@ -5,40 +5,85 @@ namespace PopSpider\Model;
 class UrlQueue implements \Iterator, \ArrayAccess
 {
 
-    protected $position = 0;
+    protected $position = -1;
+    protected $baseUrl  = null;
     protected $array    = [];
 
-    public function __construct() {
+    public function __construct($url)
+    {
+        $url = str_replace(
+            ['%3A', '%2F', '%23', '%3F', '%3D', '%25', '%2B'],
+            [':', '/', '#', '?', '=', '%', '+'],
+            rawurlencode($url)
+        );
+
+        $this->array[] = new Url($url);
+        $this->baseUrl = $url;
+        if (substr($this->baseUrl, -1) == '/') {
+            $this->baseUrl = substr($this->baseUrl, 0, -1);
+        }
+    }
+
+    public function getBaseUrl()
+    {
+        return $this->baseUrl;
+    }
+
+    public function parseCurrentUrl($context, $tags)
+    {
+        if ((null !== $this->current() && (!$this->current()->isParsed()))) {
+            $this->current()->parse($this->baseUrl, $context, $tags);
+        }
+    }
+
+    public function hasUrl($url)
+    {
+        $check = $this->array;
+        foreach ($check as $u) {
+            if ((string)$u == $url) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public function rewind()
+    {
         $this->position = 0;
     }
 
-    function rewind() {
-        $this->position = 0;
+    public function current()
+    {
+        $i = ($this->position < 0) ? 0 : $this->position;
+        return (isset($this->array[$i])) ? $this->array[$i] : null;
     }
 
-    function current() {
-        return $this->array[$this->position];
-    }
-
-    function key() {
+    public function key()
+    {
         return $this->position;
     }
 
-    function prev() {
-        --$this->position;
+    public function prev()
+    {
+        if ($this->position > 0) {
+            --$this->position;
+        }
         return $this->current();
     }
 
-    function next() {
+    public function next()
+    {
         ++$this->position;
         return $this->current();
     }
 
-    function valid() {
+    public function valid()
+    {
         return isset($this->array[$this->position]);
     }
 
-    public function offsetSet($offset, $value) {
+    public function offsetSet($offset, $value)
+    {
         if (null === $offset) {
             $this->array[] = $value;
         } else {
@@ -46,31 +91,38 @@ class UrlQueue implements \Iterator, \ArrayAccess
         }
     }
 
-    public function offsetExists($offset) {
+    public function offsetExists($offset)
+    {
         return isset($this->array[$offset]);
     }
 
-    public function offsetUnset($offset) {
+    public function offsetUnset($offset)
+    {
         unset($this->array[$offset]);
     }
 
-    public function offsetGet($offset) {
+    public function offsetGet($offset)
+    {
         return isset($this->array[$offset]) ? $this->array[$offset] : null;
     }
 
-    public function __set($name, $value) {
+    public function __set($name, $value)
+    {
         $this->offsetSet($name, $value);
     }
 
-    public function __get($name) {
+    public function __get($name)
+    {
         return $this->offsetGet($name);
     }
 
-    public function __unset($name) {
+    public function __unset($name)
+    {
         $this->offsetUnset($name);
     }
 
-    public function __isset($name) {
+    public function __isset($name)
+    {
         return $this->offsetExists($name);
     }
 
