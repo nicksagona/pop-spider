@@ -1,7 +1,28 @@
 <?php
+/**
+ * Pop Spider Web SEO Tool
+ *
+ * @link       https://github.com/nicksagona/pop-spider
+ * @author     Nick Sagona, III <dev@nolainteractive.com>
+ * @copyright  Copyright (c) 2012-2016 NOLA Interactive, LLC. (http://www.nolainteractive.com)
+ * @license    https://github.com/nicksagona/pop-spider/blob/master/LICENSE.TXT     New BSD License
+ */
 
+/**
+ * @namespace
+ */
 namespace PopSpider;
 
+/**
+ * Application class
+ *
+ * @category   PopSpider
+ * @package    PopSpider
+ * @author     Nick Sagona, III <dev@nolainteractive.com>
+ * @copyright  Copyright (c) 2012-2016 NOLA Interactive, LLC. (http://www.nolainteractive.com)
+ * @license    https://github.com/nicksagona/pop-spider/blob/master/LICENSE.TXT     New BSD License
+ * @version    2.0.1
+ */
 class Application extends \Pop\Application
 {
 
