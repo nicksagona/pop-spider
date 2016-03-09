@@ -7,8 +7,19 @@ sitemap.xml file.
 
 RELEASE INFORMATION
 -------------------
-pop-spider 2.0.0 Release  
-March 6, 2016
+pop-spider 2.0.1 Release  
+March 9, 2016
+
+INSTALLATION
+------------
+
+    $ composer create-project --no-dev nicksagona/pop-spider pop-spider
+
+QUICK USE
+---------
+
+    $ cd pop-spider/script
+    $ ./spider crawl http://www.mydomain.com/
 
 OVERVIEW
 --------
@@ -17,11 +28,18 @@ SEO-pertinent attributes:
 
 * title
 * meta
-    + name & content
+    + name
+    + content
 * a
-    + href, title, rel, name & value
+    + href
+    + title
+    + rel
+    + name
+    + value
 * img
-    + src, title & alt
+    + src
+    + title
+    + alt
 * h1
 * h2
 * h3
