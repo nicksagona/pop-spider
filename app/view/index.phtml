@@ -14,12 +14,14 @@
 
 <body>
     <header>
-        <h3>pop-spider results</h3>
+        <h3><a name="top"></a>pop-spider results</h3>
     </header>
     <nav>
         <a href="#urls">URLs</a>
         <a href="#redirects">Redirects</a>
         <a href="#errors">Errors</a>
+        <a href="#images">Images</a>
+        <a href="#other">Other</a>
     </nav>
 <!-- Content //-->
 <div id="content">
@@ -62,7 +64,7 @@ endforeach; ?>
 <?php else: ?>
     <p>There are no URLs.</p>
 <?php endif; ?>
-    <h2><a name="redirects"></a><?=count($urls['30*']); ?> Redirects</h2>
+    <h2><a name="redirects"></a><?=count($urls['30*']); ?> Redirects<a class="small-right" href="#top">top</a></h2>
 <?php if (count($urls['30*']) > 0): ?>
     <table class="data-table" cellpadding="0" cellspacing="0" border="0">
         <tr>
@@ -83,7 +85,7 @@ endforeach; ?>
 <?php else: ?>
     <p>There are no redirects.</p>
 <?php endif; ?>
-    <h2><a name="errors"></a><?=count($urls['40*']); ?> Errors</h2>
+    <h2><a name="errors"></a><?=count($urls['40*']); ?> Errors<a class="small-right" href="#top">top</a></h2>
 <?php if (count($urls['40*']) > 0): ?>
     <table class="data-table" cellpadding="0" cellspacing="0" border="0">
         <tr>
@@ -101,6 +103,42 @@ endforeach; ?>
     </table>
 <?php else: ?>
     <p>There are no errors.</p>
+<?php endif; ?>
+    <h2><a name="images"></a><?=count($urls['images']); ?> Images<a class="small-right" href="#top">top</a></h2>
+<?php if (count($urls['40*']) > 0): ?>
+    <table class="data-table" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+            <th>URL</th>
+            <th>Parent</th>
+        </tr>
+<?php foreach ($urls['images'] as $url): ?>
+        <tr>
+            <td style="padding: 8px;"><?=$url['url']; ?></td>
+            <td style="padding: 8px;"><?=$url['parent']; ?></td>
+        </tr>
+<?php endforeach; ?>
+    </table>
+<?php else: ?>
+    <p>There are no images.</p>
+<?php endif; ?>
+    <h2><a name="other"></a><?=count($urls['other']); ?> Other<a class="small-right" href="#top">top</a></h2>
+<?php if (count($urls['other']) > 0): ?>
+    <table class="data-table" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+            <th>URL</th>
+            <th>Content Type</th>
+            <th>Parent</th>
+        </tr>
+<?php foreach ($urls['other'] as $url): ?>
+        <tr>
+            <td style="padding: 8px;"><?=$url['url']; ?></td>
+            <td style="padding: 8px;"><?=$url['content-type']; ?></td>
+            <td style="padding: 8px;"><?=$url['parent']; ?></td>
+        </tr>
+<?php endforeach; ?>
+    </table>
+<?php else: ?>
+    <p>There are no other URLs.</p>
 <?php endif; ?>
 </div>
 <!-- Footer //-->

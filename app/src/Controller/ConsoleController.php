@@ -58,31 +58,40 @@ class ConsoleController extends \Pop\Controller\AbstractController
         while ($nextUrl = $urlQueue->next()) {
             $result = $this->crawler->crawl();
 
-            if ((null !== $result['content-type']) && (stripos($result['content-type'], 'text/html') !== false)) {
-                $this->console->write($nextUrl, false);
-                $this->console->send();
-                if (floor($result['code'] / 100) == 4) {
-                    $color = Console::BOLD_RED;
-                } else if (floor($result['code'] / 100) == 3) {
-                    $color = Console::BOLD_CYAN;
+            if (null !== $result['content-type']) {
+                if (stripos($result['content-type'], 'text/html') !== false) {
+                    $this->console->write($nextUrl, false);
+                    $this->console->send();
+                    if (floor($result['code'] / 100) == 4) {
+                        $color = Console::BOLD_RED;
+                    } else if (floor($result['code'] / 100) == 3) {
+                        $color = Console::BOLD_CYAN;
+                    } else {
+                        $color = Console::BOLD_GREEN;
+                    }
+                    $this->console->write($this->console->colorize($result['code'] . ' ' . $result['message'], $color));
+                    $this->console->send();
                 } else {
-                    $color = Console::BOLD_GREEN;
+                    $this->console->write('[ ' . $result['content-type'] . ' ] ' . $result['url']);
+                    $this->console->send();
                 }
-                $this->console->write($this->console->colorize($result['code'] . ' ' . $result['message'], $color));
+            } else {
+                $this->console->write('[ No Result ]');
                 $this->console->send();
             }
         }
 
         $this->output($dir);
 
-        $crawled = $this->crawler->getCrawled();
-
         $this->console->write();
-        $this->console->write($this->crawler->getTotal() . ' URLs crawled in ' . (time() - $start) . ' seconds.');
+        $this->console->write($this->crawler->getTotal() . ' Total URLs crawled in ' . (time() - $start) . ' seconds.');
+        $this->console->write($this->crawler->getTotalHtml() . ' HTML URLs crawled.');
         $this->console->write();
-        $this->console->write($this->console->colorize(count($crawled['200']) . ' OK', Console::BOLD_GREEN));
-        $this->console->write($this->console->colorize(count($crawled['30*']) . ' Redirects', Console::BOLD_CYAN));
-        $this->console->write($this->console->colorize(count($crawled['40*']) . ' Errors', Console::BOLD_RED));
+        $this->console->write($this->console->colorize($this->crawler->getTotalOk() . ' OK', Console::BOLD_GREEN));
+        $this->console->write($this->console->colorize($this->crawler->getTotalRedirects() . ' Redirects', Console::BOLD_CYAN));
+        $this->console->write($this->console->colorize($this->crawler->getTotalErrors() . ' Errors', Console::BOLD_RED));
+        $this->console->write($this->crawler->getTotalImages() . ' Images');
+        $this->console->write($this->crawler->getTotalOther() . ' Other');
         $this->console->send();
     }
 

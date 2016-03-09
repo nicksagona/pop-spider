@@ -40,7 +40,18 @@ class UrlQueue implements \Iterator, \ArrayAccess
     {
         $check = $this->array;
         foreach ($check as $u) {
-            if ((string)$u == $url) {
+            if ((string)$u == (string)$url) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public function hasParsedUrl($url)
+    {
+        $check = $this->array;
+        foreach ($check as $u) {
+            if (((string)$u == (string)$url) && ($u->isParsed()) && ($u->getCode() == 200)) {
                 return true;
             }
         }
@@ -74,6 +85,9 @@ class UrlQueue implements \Iterator, \ArrayAccess
     public function next()
     {
         ++$this->position;
+        while ($this->hasParsedUrl($this->current())) {
+            ++$this->position;
+        }
         return $this->current();
     }
 

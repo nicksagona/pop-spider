@@ -17,7 +17,12 @@ echo '<?xml version="1.0" encoding="UTF-8"?>' . PHP_EOL; ?>
     <url>
         <loc><?=$url; ?></loc>
         <changefreq>monthly</changefreq>
-        <priority><?php echo number_format(round((($depth - (substr_count($url, '/') - 3)) / $depth), 2), 2); ?></priority>
+        <priority><?php
+$priority = round((($depth - (substr_count($url, '/') - 3)) / $depth), 2);
+if ($priority > 1):
+    $priority = 1;
+endif;
+echo number_format($priority, 2); ?></priority>
     </url>
 <?php endforeach; ?>
 <?php endif; ?>

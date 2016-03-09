@@ -111,6 +111,11 @@ nav > a:hover {
     float: right;
 }
 
+.small-right {
+    font-size: 0.4em;
+    float: right;
+}
+
 .url-header {
     color: #09a1ed;
 }

@@ -14,9 +14,10 @@ class Url
     protected $contentType = null;
     protected $url         = '';
     protected $elements    = [];
+    protected $parent      = null;
     protected $children    = [];
 
-    public function __construct($url)
+    public function __construct($url, $parent = null)
     {
         $url = str_replace(
             ['%3A', '%2F', '%23', '%3F', '%3D', '%25', '%2B'],
@@ -24,7 +25,8 @@ class Url
             rawurlencode($url)
         );
 
-        $this->url = $url;
+        $this->url    = $url;
+        $this->parent = $parent;
     }
 
     public function response()
@@ -214,6 +216,16 @@ class Url
     public function hasChildren()
     {
         return (count($this->children) > 0);
+    }
+
+    public function getUrl()
+    {
+        return $this->url;
+    }
+
+    public function getParent()
+    {
+        return $this->parent;
     }
 
     public function getChildren()
