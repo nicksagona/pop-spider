@@ -47,7 +47,7 @@ SEO-pertinent attributes:
 You can parse additional tags via the `--tags=` option.
 
     $ ./spider help				                Display this help screen.
-    $ ./spider crawl <url> [--dir=] [--tags=]	Crawl the URL.
+    $ ./spider crawl [--dir=] [--tags=]	<url>   Crawl the URL.
     
     The optional [--dir=] parameter allows you to set the output directory for the results report.
     The optional [--tags=] parameter allows you to set additional tags to scan for in a comma-separated list.

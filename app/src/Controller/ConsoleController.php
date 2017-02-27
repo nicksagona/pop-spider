@@ -54,7 +54,7 @@ class ConsoleController extends AbstractController
         $helpMessage .= 'The optional [--dir=] parameter allows you to set the output directory for the results report.' . PHP_EOL;
         $helpMessage .= 'The optional [--tags=] parameter allows you to set additional tags to scan for in a comma-separated list.' . PHP_EOL . PHP_EOL;
         $helpMessage .= 'Example:' . PHP_EOL . PHP_EOL;
-        $helpMessage .= '$ ./spider crawl http://www.mydomain.com/ --dir=seo-report --tags=b,u';
+        $helpMessage .= '$ ./spider crawl --dir=seo-report --tags=b,u http://www.mydomain.com/';
 
         $this->console->write($helpMessage);
         $this->console->send();
