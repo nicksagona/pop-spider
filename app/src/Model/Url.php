@@ -23,7 +23,7 @@ use Pop\Http\Response;
  * @author     Nick Sagona, III <dev@nolainteractive.com>
  * @copyright  Copyright (c) 2012-2016 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    https://github.com/nicksagona/pop-spider/blob/master/LICENSE.TXT     New BSD License
- * @version    2.0.1
+ * @version    3.0.0
  */
 class Url
 {
@@ -89,7 +89,7 @@ class Url
     {
         $dom            = null;
         $contentType    = null;
-        $this->response = Response::parse($this->url, $context);
+        $this->response = Response::parse($this->url, 'r', $context);
 
         if (null !== $this->response->getHeader('Content-type')) {
             $this->contentType = $this->response->getHeader('Content-type');

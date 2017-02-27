@@ -7,13 +7,13 @@ sitemap.xml file.
 
 RELEASE INFORMATION
 -------------------
-pop-spider 2.0.1 Release  
-March 9, 2016
+pop-spider 3.0.0 Release  
+February 27, 2017
 
 INSTALLATION
 ------------
 
-    $ composer create-project --no-dev nicksagona/pop-spider pop-spider
+    $ composer create-project nicksagona/pop-spider pop-spider
 
 QUICK USE
 ---------

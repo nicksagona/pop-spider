@@ -21,7 +21,7 @@ namespace PopSpider\Model;
  * @author     Nick Sagona, III <dev@nolainteractive.com>
  * @copyright  Copyright (c) 2012-2016 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    https://github.com/nicksagona/pop-spider/blob/master/LICENSE.TXT     New BSD License
- * @version    2.0.1
+ * @version    3.0.0
  */
 class UrlQueue implements \Iterator, \ArrayAccess
 {

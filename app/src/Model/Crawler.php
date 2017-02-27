@@ -21,7 +21,7 @@ namespace PopSpider\Model;
  * @author     Nick Sagona, III <dev@nolainteractive.com>
  * @copyright  Copyright (c) 2012-2016 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    https://github.com/nicksagona/pop-spider/blob/master/LICENSE.TXT     New BSD License
- * @version    2.0.1
+ * @version    3.0.0
  */
 class Crawler
 {
@@ -52,9 +52,11 @@ class Crawler
             'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:16.0) Gecko/20100101 Firefox/16.0';
 
         $this->context = [
-            'method'     => 'GET',
-            'header'     => "Accept-language: en\r\n" . "User-Agent: " . $ua . "\r\n",
-            'user_agent' => $ua
+            'http' => [
+                'method'     => 'GET',
+                'header'     => "Accept-language: en\r\n" . "User-Agent: " . $ua . "\r\n",
+                'user_agent' => $ua
+            ]
         ];
     }
 

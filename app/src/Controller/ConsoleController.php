@@ -14,7 +14,7 @@
 namespace PopSpider\Controller;
 
 use Pop\Console\Console;
-use Pop\Console\Input\Command;
+use Pop\Controller\AbstractController;
 use Pop\View\View;
 use PopSpider\Model\Crawler;
 use PopSpider\Model\UrlQueue;
@@ -27,9 +27,9 @@ use PopSpider\Model\UrlQueue;
  * @author     Nick Sagona, III <dev@nolainteractive.com>
  * @copyright  Copyright (c) 2012-2016 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    https://github.com/nicksagona/pop-spider/blob/master/LICENSE.TXT     New BSD License
- * @version    2.0.1
+ * @version    3.0.0
  */
-class ConsoleController extends \Pop\Controller\AbstractController
+class ConsoleController extends AbstractController
 {
 
     /**
@@ -45,7 +45,10 @@ class ConsoleController extends \Pop\Controller\AbstractController
     public function __construct()
     {
         $this->console = new Console(160, '    ');
+    }
 
+    public function help()
+    {
         $helpMessage  = './spider ' . $this->console->colorize('help', Console::BOLD_YELLOW) . "\t\t\t\tDisplay this help screen." . PHP_EOL;
         $helpMessage .= './spider ' . $this->console->colorize('crawl', Console::BOLD_YELLOW) . " <url> [--dir=] [--tags=]\tCrawl the URL." . PHP_EOL . PHP_EOL;
         $helpMessage .= 'The optional [--dir=] parameter allows you to set the output directory for the results report.' . PHP_EOL;
@@ -53,24 +56,17 @@ class ConsoleController extends \Pop\Controller\AbstractController
         $helpMessage .= 'Example:' . PHP_EOL . PHP_EOL;
         $helpMessage .= '$ ./spider crawl http://www.mydomain.com/ --dir=seo-report --tags=b,u';
 
-        $help = new Command('help');
-        $help->setHelp($helpMessage);
-        $this->console->addCommand($help);
-    }
-
-    public function help()
-    {
-        $this->console->write($this->console->getCommand('help')->getHelp());
+        $this->console->write($helpMessage);
         $this->console->send();
     }
 
-    public function crawl($url, $dir = null, $tags = [])
+    public function crawl($url, $options = [])
     {
         $this->console->write('Crawling: ' . $url);
         $this->console->write();
 
-        $dir   = (null !== $dir) ? $dir : 'output';
-        $tags  = (null !== $tags) ? explode(',', $tags) : [];
+        $dir   = (!empty($options['dir'])) ? $options['dir'] : 'output';
+        $tags  = (!empty($options['tags'])) ? explode(',', $options['tags']) : [];
         $start = time();
 
         $urlQueue      = new UrlQueue($url);

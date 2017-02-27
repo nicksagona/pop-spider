@@ -7,7 +7,7 @@ return [
             'action'     => 'help',
             'default'    => true
         ],
-        'crawl <url> [--dir=] [--tags=]' => [
+        'crawl [--dir=] [--tags=] <url>' => [
             'controller' => 'PopSpider\Controller\ConsoleController',
             'action'     => 'crawl'
         ]
