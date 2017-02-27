@@ -50,7 +50,7 @@ class ConsoleController extends AbstractController
     public function help()
     {
         $helpMessage  = './spider ' . $this->console->colorize('help', Console::BOLD_YELLOW) . "\t\t\t\tDisplay this help screen." . PHP_EOL;
-        $helpMessage .= './spider ' . $this->console->colorize('crawl', Console::BOLD_YELLOW) . " <url> [--dir=] [--tags=]\tCrawl the URL." . PHP_EOL . PHP_EOL;
+        $helpMessage .= './spider ' . $this->console->colorize('crawl', Console::BOLD_YELLOW) . " [--dir=] [--tags=] <url>\tCrawl the URL." . PHP_EOL . PHP_EOL;
         $helpMessage .= 'The optional [--dir=] parameter allows you to set the output directory for the results report.' . PHP_EOL;
         $helpMessage .= 'The optional [--tags=] parameter allows you to set additional tags to scan for in a comma-separated list.' . PHP_EOL . PHP_EOL;
         $helpMessage .= 'Example:' . PHP_EOL . PHP_EOL;
