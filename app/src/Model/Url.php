@@ -13,7 +13,7 @@
  */
 namespace PopSpider\Model;
 
-use Pop\Http\Response;
+use Pop\Http;
 
 /**
  * Url model class
@@ -29,7 +29,7 @@ class Url
 {
 
     /**
-     * @var Response
+     * @var Http\Server\Response
      */
     protected $response    = null;
     protected $contentType = null;
@@ -88,8 +88,7 @@ class Url
     public function parse($baseUrl, $context, array $tags)
     {
         $dom            = null;
-        $contentType    = null;
-        $this->response = Response::parse($this->url, 'r', $context);
+        $this->response = Http\Parser::parseResponseFromUri($this->url, 'GET', 'r', $context);
 
         if (null !== $this->response->getHeader('Content-type')) {
             $this->contentType = $this->response->getHeader('Content-type');

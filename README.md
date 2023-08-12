@@ -7,8 +7,8 @@ sitemap.xml file.
 
 RELEASE INFORMATION
 -------------------
-pop-spider 3.0.0 Release  
-February 27, 2017
+pop-spider 4.0.0 Release  
+August 12, 2023
 
 INSTALLATION
 ------------

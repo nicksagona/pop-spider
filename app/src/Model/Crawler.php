@@ -54,7 +54,7 @@ class Crawler
         $this->context = [
             'http' => [
                 'method'     => 'GET',
-                'header'     => "Accept-language: en\r\n" . "User-Agent: " . $ua . "\r\n",
+                'header'     => "Accept: */*\r\n" . "Accept-language: en\r\n" . "User-Agent: " . $ua . "\r\n",
                 'user_agent' => $ua
             ]
         ];
