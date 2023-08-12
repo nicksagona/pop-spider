@@ -4,7 +4,7 @@
  *
  * @link       https://github.com/nicksagona/pop-spider
  * @author     Nick Sagona, III <dev@nolainteractive.com>
- * @copyright  Copyright (c) 2012-2016 NOLA Interactive, LLC. (http://www.nolainteractive.com)
+ * @copyright  Copyright (c) 2012-2023 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    https://github.com/nicksagona/pop-spider/blob/master/LICENSE.TXT     New BSD License
  */
 
@@ -21,9 +21,9 @@ use Pop\Http;
  * @category   PopSpider
  * @package    PopSpider
  * @author     Nick Sagona, III <dev@nolainteractive.com>
- * @copyright  Copyright (c) 2012-2016 NOLA Interactive, LLC. (http://www.nolainteractive.com)
+ * @copyright  Copyright (c) 2012-2023 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    https://github.com/nicksagona/pop-spider/blob/master/LICENSE.TXT     New BSD License
- * @version    3.0.0
+ * @version    4.0.0
  */
 class Url
 {
@@ -37,6 +37,30 @@ class Url
     protected $elements    = [];
     protected $parent      = null;
     protected $children    = [];
+    protected $allowed     = [
+        'bmp'    => 'image/bmp',
+        'csv'    => 'text/csv',
+        'doc'    => 'application/msword',
+        'docx'   => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'gif'    => 'image/gif',
+        'jpe'    => 'image/jpeg',
+        'jpg'    => 'image/jpeg',
+        'jpeg'   => 'image/jpeg',
+        'log'    => 'text/plain',
+        'pdf'    => 'application/pdf',
+        'png'    => 'image/png',
+        'ppt'    => 'application/vnd.ms-powerpoint',
+        'pptx'   => 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+        'svg'    => 'image/svg+xml',
+        'tif'    => 'image/tiff',
+        'tiff'   => 'image/tiff',
+        'tsv'    => 'text/tsv',
+        'txt'    => 'text/plain',
+        'xls'    => 'application/vnd.ms-excel',
+        'xlsx'   => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'xml'    => 'application/xml',
+        'zip'    => 'application/x-zip'
+    ];
 
     public function __construct($url, $parent = null)
     {
@@ -85,7 +109,7 @@ class Url
         return (null !== $this->response) ? $this->response->isClientError() : false;
     }
 
-    public function parse($baseUrl, $context, array $tags)
+    public function parse($baseUrl, $context, array $tags, $saveDir = null)
     {
         $dom            = null;
         $this->response = Http\Parser::parseResponseFromUri($this->url, 'GET', 'r', $context);
@@ -101,12 +125,45 @@ class Url
                 $oldError = ini_get('error_reporting');
                 error_reporting(0);
 
+                $responseBody = $this->response->getBody();
+
                 $dom = new \DOMDocument();
                 $dom->recover = true;
                 $dom->strictErrorChecking = false;
-                $dom->loadHTML($this->response->getBody());
+                $dom->loadHTML($responseBody);
+
+                if (null !== $saveDir) {
+                    $filename = str_replace($baseUrl, '', $this->url);
+                    if ($filename == '/') {
+                        $filename = 'index.html';
+                    } else {
+                        $filename = str_replace('/', '_', $filename);
+                        if (stripos($filename, '.html') === false) {
+                            $filename .= '.html';
+                        }
+                    }
+                    file_put_contents($saveDir . DIRECTORY_SEPARATOR . $filename, $responseBody);
+                }
 
                 error_reporting($oldError);
+            }
+        } else if (null !== $saveDir) {
+            if (in_array(strtolower((string)$this->contentType->getValue()), $this->allowed)) {
+                $fileName    = basename($this->url);
+                $location    = str_replace([$baseUrl, $fileName], ['', ''], $this->url);
+                $folders     = explode('/', $location);
+                $locationDir = $saveDir;
+
+                foreach ($folders as $folder) {
+                    if (!empty($folder)) {
+                        $locationDir = $locationDir . DIRECTORY_SEPARATOR . $folder;
+                        if (!file_exists($locationDir)) {
+                            mkdir($locationDir);
+                        }
+                    }
+                }
+
+                file_put_contents($locationDir . DIRECTORY_SEPARATOR . $fileName, $this->response->getBody());
             }
         }
 
@@ -170,6 +227,8 @@ class Url
                                         } else {
                                             $href = $baseUrl . '/' . str_replace('../', '', $href);
                                         }
+                                    } else if (stripos($href, $baseUrl) === false) {
+                                        $href = $baseUrl . '/' . $href;
                                     }
 
                                     if ((substr($href, 0, strlen($baseUrl)) == $baseUrl) &&

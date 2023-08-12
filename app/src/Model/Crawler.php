@@ -4,7 +4,7 @@
  *
  * @link       https://github.com/nicksagona/pop-spider
  * @author     Nick Sagona, III <dev@nolainteractive.com>
- * @copyright  Copyright (c) 2012-2016 NOLA Interactive, LLC. (http://www.nolainteractive.com)
+ * @copyright  Copyright (c) 2012-2023 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    https://github.com/nicksagona/pop-spider/blob/master/LICENSE.TXT     New BSD License
  */
 
@@ -19,9 +19,9 @@ namespace PopSpider\Model;
  * @category   PopSpider
  * @package    PopSpider
  * @author     Nick Sagona, III <dev@nolainteractive.com>
- * @copyright  Copyright (c) 2012-2016 NOLA Interactive, LLC. (http://www.nolainteractive.com)
+ * @copyright  Copyright (c) 2012-2023 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    https://github.com/nicksagona/pop-spider/blob/master/LICENSE.TXT     New BSD License
- * @version    3.0.0
+ * @version    4.0.0
  */
 class Crawler
 {
@@ -116,10 +116,10 @@ class Crawler
         return $this->crawled;
     }
 
-    public function crawl()
+    public function crawl($saveDir = null)
     {
         $result = [];
-        $this->urlQueue->parseCurrentUrl($this->context, $this->tags);
+        $this->urlQueue->parseCurrentUrl($this->context, $this->tags, $saveDir);
 
         if ($this->urlQueue->current()->getCode() == 200) {
             if ((stripos($this->urlQueue->current()->getContentType(), 'text/html') !== false) &&

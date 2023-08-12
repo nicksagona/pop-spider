@@ -4,7 +4,7 @@
  *
  * @link       https://github.com/nicksagona/pop-spider
  * @author     Nick Sagona, III <dev@nolainteractive.com>
- * @copyright  Copyright (c) 2012-2016 NOLA Interactive, LLC. (http://www.nolainteractive.com)
+ * @copyright  Copyright (c) 2012-2023 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    https://github.com/nicksagona/pop-spider/blob/master/LICENSE.TXT     New BSD License
  */
 
@@ -25,9 +25,9 @@ use PopSpider\Model\UrlQueue;
  * @category   PopSpider
  * @package    PopSpider
  * @author     Nick Sagona, III <dev@nolainteractive.com>
- * @copyright  Copyright (c) 2012-2016 NOLA Interactive, LLC. (http://www.nolainteractive.com)
+ * @copyright  Copyright (c) 2012-2023 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    https://github.com/nicksagona/pop-spider/blob/master/LICENSE.TXT     New BSD License
- * @version    3.0.0
+ * @version    4.0.0
  */
 class ConsoleController extends AbstractController
 {
@@ -65,15 +65,22 @@ class ConsoleController extends AbstractController
         $this->console->write('Crawling: ' . $url);
         $this->console->write();
 
-        $dir   = (!empty($options['dir'])) ? $options['dir'] : 'output';
-        $tags  = (!empty($options['tags'])) ? explode(',', $options['tags']) : [];
-        $start = time();
+        $dir     = (!empty($options['dir'])) ? $options['dir'] : 'output';
+        $saveDir = (!empty($options['save'])) ? $dir . '-site' : null;
+        $tags    = (!empty($options['tags'])) ? explode(',', $options['tags']) : [];
+        $start   = time();
+
+        if (!empty($saveDir)) {
+            if (!file_exists($saveDir)) {
+                mkdir($saveDir);
+            }
+        }
 
         $urlQueue      = new UrlQueue($url);
         $this->crawler = new Crawler($urlQueue, $tags);
 
         while ($nextUrl = $urlQueue->next()) {
-            $result = $this->crawler->crawl();
+            $result = $this->crawler->crawl($saveDir);
 
             if (null !== $result['content-type']) {
                 if (stripos($result['content-type'], 'text/html') !== false) {
