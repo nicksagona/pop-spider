@@ -59,7 +59,7 @@ class Url
         'xls'    => 'application/vnd.ms-excel',
         'xlsx'   => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         'xml'    => 'application/xml',
-        'zip'    => 'application/x-zip'
+        'zip'    => 'application/zip'
     ];
 
     public function __construct($url, $parent = null)
@@ -112,7 +112,9 @@ class Url
     public function parse($baseUrl, $context, array $tags, $saveDir = null)
     {
         $dom            = null;
+        $domain         = parse_url($baseUrl)['host'];
         $this->response = Http\Parser::parseResponseFromUri($this->url, 'GET', 'r', $context);
+
 
         if (null !== $this->response->getHeader('Content-type')) {
             $this->contentType = $this->response->getHeader('Content-type');
@@ -133,15 +135,25 @@ class Url
                 $dom->loadHTML($responseBody);
 
                 if (null !== $saveDir) {
-                    $filename = str_replace($baseUrl, '', $this->url);
+                    $filename = str_replace($baseUrl, '', urldecode($this->url));
                     if ($filename == '/') {
                         $filename = 'index.html';
                     } else {
+                        if (stripos($filename, $domain) !== false) {
+                            $filename = substr($filename, (stripos($filename, $domain) + strlen($domain) + 1));
+                        }
+                        if (substr($filename, -1) == '/') {
+                            $filename = substr($filename, 0, -1);
+                        }
                         $filename = str_replace('/', '_', $filename);
+                        if (empty($filename)) {
+                            $filename = 'index.html';
+                        }
                         if (stripos($filename, '.html') === false) {
                             $filename .= '.html';
                         }
                     }
+
                     file_put_contents($saveDir . DIRECTORY_SEPARATOR . $filename, $responseBody);
                 }
 
@@ -149,8 +161,13 @@ class Url
             }
         } else if (null !== $saveDir) {
             if (in_array(strtolower((string)$this->contentType->getValue()), $this->allowed)) {
-                $fileName    = basename($this->url);
-                $location    = str_replace([$baseUrl, $fileName], ['', ''], $this->url);
+                $fileName = urldecode(basename($this->url));
+                if (strpos($this->url, $baseUrl) !== false) {
+                    $location = str_replace([$baseUrl, $fileName], ['', ''], urldecode($this->url));
+                } else {
+                    $location = str_replace($fileName, '', urldecode($this->url));
+                    $location = substr($location, (stripos($location, $domain) + strlen($domain) + 1));
+                }
                 $folders     = explode('/', $location);
                 $locationDir = $saveDir;
 
@@ -227,12 +244,12 @@ class Url
                                         } else {
                                             $href = $baseUrl . '/' . str_replace('../', '', $href);
                                         }
-                                    } else if (stripos($href, $baseUrl) === false) {
+                                    } else if ((stripos($href, $domain) === false) && (substr(strtolower($href), 0, 4) != 'http')) {
                                         $href = $baseUrl . '/' . $href;
                                     }
 
-                                    if ((substr($href, 0, strlen($baseUrl)) == $baseUrl) &&
-                                        !in_array($href, $this->children) && ($this->url != $href)) {
+                                    //if ((substr($href, 0, strlen($baseUrl)) == $baseUrl) &&
+                                    if ((stripos($href, $domain) !== false) && !in_array($href, $this->children) && ($this->url != $href)) {
                                         $this->children[] = $href;
                                     }
                                 }

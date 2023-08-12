@@ -49,10 +49,11 @@ class ConsoleController extends AbstractController
 
     public function help()
     {
-        $helpMessage  = './spider ' . $this->console->colorize('help', Console::BOLD_YELLOW) . "\t\t\t\t\tDisplay this help screen." . PHP_EOL;
-        $helpMessage .= './spider ' . $this->console->colorize('crawl', Console::BOLD_YELLOW) . " " . $this->console->colorize("[--dir=] [--tags=] [--save]", Console::BOLD_CYAN) . " " . $this->console->colorize("<url>", Console::BOLD_GREEN) . "\tCrawl the URL." . PHP_EOL . PHP_EOL;
+        $helpMessage  = './spider ' . $this->console->colorize('help', Console::BOLD_YELLOW) . "\t\t\t\t\t\tDisplay this help screen." . PHP_EOL;
+        $helpMessage .= './spider ' . $this->console->colorize('crawl', Console::BOLD_YELLOW) . " " . $this->console->colorize("[--dir=] [--tags=] [--speed=] [--save]", Console::BOLD_CYAN) . " " . $this->console->colorize("<url>", Console::BOLD_GREEN) . "\tCrawl the URL." . PHP_EOL . PHP_EOL;
         $helpMessage .= 'The optional ' . $this->console->colorize("[--dir=]", Console::BOLD_CYAN) . ' parameter allows you to set the output directory for the results report.' . PHP_EOL;
         $helpMessage .= 'The optional ' . $this->console->colorize("[--tags=]", Console::BOLD_CYAN) . ' parameter allows you to set additional tags to scan for in a comma-separated list.' . PHP_EOL;
+        $helpMessage .= 'The optional ' . $this->console->colorize("[--speed=]", Console::BOLD_CYAN) . ' parameter will throttle the speed between each request in seconds.' . PHP_EOL;
         $helpMessage .= 'The optional ' . $this->console->colorize("[--save]", Console::BOLD_CYAN) . ' parameter will save the site files into a directory.' . PHP_EOL . PHP_EOL;
         $helpMessage .= 'Example:' . PHP_EOL . PHP_EOL;
         $helpMessage .= '$ ./spider crawl --dir=seo-report --tags=b,u --save http://www.mydomain.com/';
@@ -66,6 +67,7 @@ class ConsoleController extends AbstractController
         $this->console->write('Crawling: ' . $url);
         $this->console->write();
 
+        $speed   = (!empty($options['speed'])) ? (int)$options['speed'] : 0;
         $dir     = (!empty($options['dir'])) ? $options['dir'] : 'output';
         $saveDir = (!empty($options['save'])) ? $dir . '-site' : null;
         $tags    = (!empty($options['tags'])) ? explode(',', $options['tags']) : [];
@@ -97,12 +99,16 @@ class ConsoleController extends AbstractController
                     $this->console->write($this->console->colorize($result['code'] . ' ' . $result['message'], $color));
                     $this->console->send();
                 } else {
-                    $this->console->write('[ ' . $result['content-type'] . ' ] ' . $result['url']);
+                    $this->console->write('[ ' . $result['content-type'] . ' ] ' . urldecode($result['url']));
                     $this->console->send();
                 }
             } else {
                 $this->console->write('[ No Result ]');
                 $this->console->send();
+            }
+
+            if (!empty($speed)) {
+                sleep($speed);
             }
         }
 
