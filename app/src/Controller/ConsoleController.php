@@ -49,12 +49,13 @@ class ConsoleController extends AbstractController
 
     public function help()
     {
-        $helpMessage  = './spider ' . $this->console->colorize('help', Console::BOLD_YELLOW) . "\t\t\t\tDisplay this help screen." . PHP_EOL;
-        $helpMessage .= './spider ' . $this->console->colorize('crawl', Console::BOLD_YELLOW) . " [--dir=] [--tags=] <url>\tCrawl the URL." . PHP_EOL . PHP_EOL;
-        $helpMessage .= 'The optional [--dir=] parameter allows you to set the output directory for the results report.' . PHP_EOL;
-        $helpMessage .= 'The optional [--tags=] parameter allows you to set additional tags to scan for in a comma-separated list.' . PHP_EOL . PHP_EOL;
+        $helpMessage  = './spider ' . $this->console->colorize('help', Console::BOLD_YELLOW) . "\t\t\t\t\tDisplay this help screen." . PHP_EOL;
+        $helpMessage .= './spider ' . $this->console->colorize('crawl', Console::BOLD_YELLOW) . " " . $this->console->colorize("[--dir=] [--tags=] [--save]", Console::BOLD_CYAN) . " " . $this->console->colorize("<url>", Console::BOLD_GREEN) . "\tCrawl the URL." . PHP_EOL . PHP_EOL;
+        $helpMessage .= 'The optional ' . $this->console->colorize("[--dir=]", Console::BOLD_CYAN) . ' parameter allows you to set the output directory for the results report.' . PHP_EOL;
+        $helpMessage .= 'The optional ' . $this->console->colorize("[--tags=]", Console::BOLD_CYAN) . ' parameter allows you to set additional tags to scan for in a comma-separated list.' . PHP_EOL;
+        $helpMessage .= 'The optional ' . $this->console->colorize("[--save]", Console::BOLD_CYAN) . ' parameter will save the site files into a directory.' . PHP_EOL . PHP_EOL;
         $helpMessage .= 'Example:' . PHP_EOL . PHP_EOL;
-        $helpMessage .= '$ ./spider crawl --dir=seo-report --tags=b,u http://www.mydomain.com/';
+        $helpMessage .= '$ ./spider crawl --dir=seo-report --tags=b,u --save http://www.mydomain.com/';
 
         $this->console->write($helpMessage);
         $this->console->send();
