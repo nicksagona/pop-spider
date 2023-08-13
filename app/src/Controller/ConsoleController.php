@@ -85,7 +85,7 @@ class ConsoleController extends AbstractController
         while ($nextUrl = $urlQueue->next()) {
             $result = $this->crawler->crawl($saveDir);
 
-            if (null !== $result['content-type']) {
+            if (!empty($result['content-type'])) {
                 if (stripos($result['content-type'], 'text/html') !== false) {
                     $this->console->write($nextUrl, false);
                     $this->console->send();
@@ -103,7 +103,7 @@ class ConsoleController extends AbstractController
                     $this->console->send();
                 }
             } else {
-                $this->console->write('[ No Result ]');
+                $this->console->write('[ No Result ] (' . $this->console->colorize($nextUrl, Console::BOLD_YELLOW) . ')');
                 $this->console->send();
             }
 

@@ -31,6 +31,7 @@ class Crawler
     protected $urlQueue = null;
     protected $context  = [];
     protected $tags     = ['title', 'meta', 'a', 'img', 'h1', 'h2', 'h3'];
+    protected $parsed   = [];
     protected $crawled  = [
         '200'    => [],
         '30*'    => [],
@@ -127,24 +128,26 @@ class Crawler
                 $this->crawled['200'][(string)$this->urlQueue->current()] = $this->urlQueue->current()->getElements();
                 if ($this->urlQueue->current()->hasChildren()) {
                     foreach ($this->urlQueue->current()->getChildren() as $child) {
-                        $this->urlQueue[] = new Url($child, (string)$this->urlQueue->current());
+                        if (!$this->urlQueue->hasUrl($child)) {
+                            $this->urlQueue[] = new Url($child, (string)$this->urlQueue->current());
+                        }
                     }
                 }
-            } else if (stripos($this->urlQueue->current()->getContentType(), 'image/') !== false) {
-                $this->crawled['images'][] = [
+            } else if ((stripos($this->urlQueue->current()->getContentType(), 'image/') !== false) && !array_key_exists((string)$this->urlQueue->current(), $this->crawled['images'])) {
+                $this->crawled['images'][(string)$this->urlQueue->current()] = [
                     'url'          => (string)$this->urlQueue->current(),
                     'content-type' => $this->urlQueue->current()->getContentType(),
                     'parent'       => $this->urlQueue->current()->getParent()
                 ];
-            } else {
-                $this->crawled['other'][] = [
+            } else if (!array_key_exists((string)$this->urlQueue->current(), $this->crawled['other'])){
+                $this->crawled['other'][(string)$this->urlQueue->current()] = [
                     'url'          => (string)$this->urlQueue->current(),
                     'content-type' => $this->urlQueue->current()->getContentType(),
                     'parent'       => $this->urlQueue->current()->getParent()
                 ];
             }
-        } else if ($this->urlQueue->current()->isRedirect()) {
-            $this->crawled['30*'][] = [
+        } else if (($this->urlQueue->current()->isRedirect()) && !array_key_exists((string)$this->urlQueue->current(), $this->crawled['30*'])) {
+            $this->crawled['30*'][(string)$this->urlQueue->current()] = [
                 'url'          => (string)$this->urlQueue->current(),
                 'content-type' => $this->urlQueue->current()->getContentType(),
                 'parent'       => $this->urlQueue->current()->getParent(),
@@ -152,8 +155,8 @@ class Crawler
                 'message'      => $this->urlQueue->current()->getMessage(),
                 'location'     => $this->urlQueue->current()->response()->getHeader('Location')
             ];
-        } else if ($this->urlQueue->current()->isError()) {
-            $this->crawled['40*'][] = [
+        } else if (($this->urlQueue->current()->isError()) && !array_key_exists((string)$this->urlQueue->current(), $this->crawled['40*'])) {
+            $this->crawled['40*'][(string)$this->urlQueue->current()] = [
                 'url'          => (string)$this->urlQueue->current(),
                 'content-type' => $this->urlQueue->current()->getContentType(),
                 'parent'       => $this->urlQueue->current()->getParent(),
@@ -162,8 +165,9 @@ class Crawler
             ];
         }
 
-        if ($this->urlQueue->current()->isParsed()) {
-            $result = [
+        if (($this->urlQueue->current()->isParsed()) && !in_array((string)$this->urlQueue->current(), $this->parsed)) {
+            $this->parsed[] = (string)$this->urlQueue->current();
+            $result         = [
                 'url'          => (string)$this->urlQueue->current(),
                 'content-type' => $this->urlQueue->current()->getContentType(),
                 'code'         => $this->urlQueue->current()->getCode(),

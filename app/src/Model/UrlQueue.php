@@ -26,9 +26,10 @@ namespace PopSpider\Model;
 class UrlQueue implements \Iterator, \ArrayAccess
 {
 
-    protected $position = -1;
-    protected $baseUrl  = null;
-    protected $array    = [];
+    protected $position   = -1;
+    protected $baseUrl    = null;
+    protected $urls       = [];
+    protected $urlStrings = [];
 
     public function __construct($url)
     {
@@ -38,7 +39,8 @@ class UrlQueue implements \Iterator, \ArrayAccess
             rawurlencode($url)
         );
 
-        $this->array[] = new Url($url);
+        $this->urls[]       = new Url($url);
+        $this->urlStrings[] = urldecode($url);
         $this->baseUrl = $url;
         if (substr($this->baseUrl, -1) == '/') {
             $this->baseUrl = substr($this->baseUrl, 0, -1);
@@ -59,18 +61,19 @@ class UrlQueue implements \Iterator, \ArrayAccess
 
     public function hasUrl($url)
     {
-        $check = $this->array;
-        foreach ($check as $u) {
-            if ((string)$u == (string)$url) {
-                return true;
-            }
-        }
-        return false;
+//        $check = $this->urls;
+//        foreach ($check as $u) {
+//            if ((string)$u == (string)$url) {
+//                return true;
+//            }
+//        }
+//        return false;
+        return in_array((string)$url, $this->urlStrings);
     }
 
     public function hasParsedUrl($url)
     {
-        $check = $this->array;
+        $check = $this->urls;
         foreach ($check as $u) {
             if (((string)$u == (string)$url) && ($u->isParsed()) && ($u->getCode() == 200)) {
                 return true;
@@ -87,7 +90,7 @@ class UrlQueue implements \Iterator, \ArrayAccess
     public function current()
     {
         $i = ($this->position < 0) ? 0 : $this->position;
-        return (isset($this->array[$i])) ? $this->array[$i] : null;
+        return (isset($this->urls[$i])) ? $this->urls[$i] : null;
     }
 
     public function key()
@@ -114,31 +117,32 @@ class UrlQueue implements \Iterator, \ArrayAccess
 
     public function valid()
     {
-        return isset($this->array[$this->position]);
+        return isset($this->urls[$this->position]);
     }
 
     public function offsetSet($offset, $value)
     {
         if (null === $offset) {
-            $this->array[] = $value;
+            $this->urls[] = $value;
         } else {
-            $this->array[$offset] = $value;
+            $this->urls[$offset] = $value;
         }
+        $this->urlStrings[] = ($value instanceof Url) ? urldecode((string)$value) : urldecode($value);
     }
 
     public function offsetExists($offset)
     {
-        return isset($this->array[$offset]);
+        return isset($this->urls[$offset]);
     }
 
     public function offsetUnset($offset)
     {
-        unset($this->array[$offset]);
+        unset($this->urls[$offset]);
     }
 
     public function offsetGet($offset)
     {
-        return isset($this->array[$offset]) ? $this->array[$offset] : null;
+        return isset($this->urls[$offset]) ? $this->urls[$offset] : null;
     }
 
     public function __set($name, $value)
