@@ -19,7 +19,7 @@
     "php": ">=7.4.0",
     "popphp/popphp": "^3.7.2",
     "popphp/pop-console": "^3.2.1",
-    "popphp/pop-http": "^4.1.7",
+    "popphp/pop-http": "^4.2.0",
     "popphp/pop-view": "^3.3.1"
   },
   "require-dev": {

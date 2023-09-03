@@ -21,7 +21,7 @@ namespace PopSpider\Model;
  * @author     Nick Sagona, III <dev@nolainteractive.com>
  * @copyright  Copyright (c) 2012-2023 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    https://github.com/nicksagona/pop-spider/blob/master/LICENSE.TXT     New BSD License
- * @version    4.0.0
+ * @version    4.0.2
  */
 class Crawler
 {
