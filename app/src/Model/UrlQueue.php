@@ -39,9 +39,17 @@ class UrlQueue implements \Iterator, \ArrayAccess
             rawurlencode($url)
         );
 
+        $info = pathinfo($url);
+
+        if (!empty($info['extension']) && (substr($url, 0 - (strlen($info['extension']) + 1)) == '.' . $info['extension'])) {
+            $baseUrl = substr($url, 0, strrpos($url, '/'));
+        } else {
+            $baseUrl = $url;
+        }
+
         $this->urls[]       = new Url($url);
         $this->urlStrings[] = urldecode($url);
-        $this->baseUrl = $url;
+        $this->baseUrl      = $baseUrl;
         if (substr($this->baseUrl, -1) == '/') {
             $this->baseUrl = substr($this->baseUrl, 0, -1);
         }

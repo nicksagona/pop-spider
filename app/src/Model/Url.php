@@ -113,8 +113,18 @@ class Url
     {
         $dom            = null;
         $domain         = parse_url($baseUrl)['host'];
+        $directory      = null;
         $this->response = Http\Parser::parseResponseFromUri($this->url, 'GET', 'r', $context);
 
+        if (!empty($baseUrl) && (substr($this->url, 0, strlen($baseUrl)) == $baseUrl)) {
+            $directoryUrl = substr($this->url, strlen($baseUrl));
+            if (substr($directoryUrl, 0, 1) == '/') {
+                $directoryUrl = substr($directoryUrl, 1);
+            }
+            if (strpos($directoryUrl, '/') !== false) {
+                $directory = substr($directoryUrl, 0, strrpos($directoryUrl, '/'));
+            }
+        }
 
         if (null !== $this->response->getHeader('Content-type')) {
             $this->contentType = $this->response->getHeader('Content-type');
@@ -222,6 +232,16 @@ class Url
                                 }
 
                                 $href = ($a->hasAttribute('href') ? $a->getAttribute('href') : null);
+
+                                if (($directory !== null) && (stripos($href, $domain) === false) && (substr(strtolower($href), 0, 4) != 'http')) {
+                                    if (substr($href, 0, strlen($directory)) !== $directory) {
+                                        if (substr($href, 0, 1) !== '/') {
+                                            $href = $directory . '/' . $href;
+                                        } else {
+                                            $href = $directory . $href;
+                                        }
+                                    }
+                                }
 
                                 if ((null !== $href) && ($this->isValidHref($href))) {
                                     if (substr($href, 0, strlen($baseUrl)) == $baseUrl) {
